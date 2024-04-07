@@ -239,7 +239,8 @@ def strokeabbr2idx(strokeorder_list):
                 assert len(query_result) == 1, "query result num is not one."
                 stroke_idx = query_result.index[0]
                 stroke_idx_list.append(stroke_idx)
-            indexed_strokeorder_list.append(stroke_idx_list)
+            stroke_idx_str = " ".join([str(idx) for idx in stroke_idx_list])
+            indexed_strokeorder_list.append(stroke_idx_str)
     return indexed_strokeorder_list
     
 trainval_character_table = pd.read_csv("trainval_character_table.csv")
