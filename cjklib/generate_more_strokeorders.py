@@ -74,7 +74,7 @@ df_character_decomposition = getTableData("data/characterdecomposition.csv")
 df_stroke_order = getTableData("data/strokeorder.csv")
 df_stroke_abbr = getTableData("data/strokes.csv")
 
-with open(r"C:\Users\79437\OneDrive\Desktop\FudanOCR\character-profile-matching\data\decompose.txt", encoding="utf-8") as f:
+with open(r"decompose.txt", encoding="utf-8") as f:
     lines = f.readlines()
 chinese_character_list2 = []
 decomposition_list2 = []
@@ -228,15 +228,16 @@ def buildStrokeOrder(char, glyph, includePartial=False, cache=None):
 
 def strokeabbr2idx(strokeorder_list):
     indexed_strokeorder_list = []
-    for strokeabbr_list in strokeorder_list:
+    for i, strokeabbr_list in enumerate(strokeorder_list):
         if strokeabbr_list is None:
             indexed_strokeorder_list.append("UNDEFINED")
         else:
             stroke_idx_list = []
             strokeabbr_list = strokeabbr_list.replace(" ", "-").split("-")
             for strokeabbr in strokeabbr_list:
+                strokeabbr = strokeabbr
                 query_result = df_stroke_abbr[df_stroke_abbr["StrokeAbbrev"] == strokeabbr]
-                assert len(query_result) == 1, "query result num is not one."
+                assert len(query_result) == 1, f"char{i} query result num is not one."
                 stroke_idx = query_result.index[0]
                 stroke_idx_list.append(stroke_idx)
             stroke_idx_str = " ".join([str(idx) for idx in stroke_idx_list])
@@ -283,5 +284,15 @@ def main():
     #     if glyph_idx >= 1:
     #         del the_cache[(字, glyph_idx - 1)]
 
+def generate_only_index(intermediate_csv=None):
+    if intermediate_csv is None:
+        intermediate_csv = r"intermediate_artificial_adapted.csv"
+    df_stroke_info = pd.read_csv(intermediate_csv)
+    # generating output file
+    indexed_strokeorder_list = strokeabbr2idx(df_stroke_info["strokeorder"].tolist())
+    output_df = pd.DataFrame({"char": df_stroke_info["char"], "strokeorder": indexed_strokeorder_list})
+    output_df.to_csv("output0409.csv")
+
+
 if __name__ == "__main__":
-    main()
+    generate_only_index()
